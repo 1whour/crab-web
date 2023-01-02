@@ -6,7 +6,7 @@
     </el-tabs>
 
     <div v-if="editableTabs[0].show === true">
-      <el-form ref="form" :model="form" label-width="80px">
+      <el-form ref=" form" :model="form" label-width="80px">
         <el-row>
           <el-col :span="12">
             <el-form-item label="任务名称">
@@ -30,7 +30,7 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="http/https">
-              <el-select v-model="value" placeholder="请选择method方法" class="method-select" size="big">
+              <el-select v-model="schemeValue" placeholder="请选择method方法" class="method-select" size="big">
                 <el-option v-for="item in schemeOptions" :key="item.value" :label="item.label" :value="item.value">
                 </el-option>
               </el-select>
@@ -39,13 +39,68 @@
 
           <el-col :span="12">
             <el-form-item label="method">
-              <el-select v-model="value" placeholder="请选择method方法" class="method-select" size="big">
+              <el-select v-model="methodValue" placeholder="请选择method方法" class="method-select" size="big">
                 <el-option v-for="item in methodOptions" :key="item.value" :label="item.label" :value="item.value">
                 </el-option>
               </el-select>
             </el-form-item>
           </el-col>
         </el-row>
+
+        <el-row>
+          <el-col :span="24">
+            <el-form-item label="header">
+              <el-divider></el-divider>
+              <el-table :data="tableData" style="width: 100%">
+
+                <el-table-column min-width="300px" label="header key">
+                  <template slot-scope="{row}">
+                    <template v-if="row.edit">
+                      <el-input v-model="row.key" class="edit-input" size="small"
+                        style="float:right;margin-bottom:10px;z-index:1;position:relative" />
+                    </template>
+                    <span v-else>{{ row.key }}</span>
+                  </template>
+                </el-table-column>
+
+                <el-table-column min-width="300px" label="header value">
+                  <template slot-scope="{row}">
+                    <template v-if="row.edit">
+                      <el-input v-model="row.value" class="edit-input" size="small"
+                        style="float:right;margin-bottom:10px;z-index:1;position:relative" />
+                    </template>
+                    <span v-else>{{ row.value }}</span>
+                  </template>
+                </el-table-column>
+
+                <el-table-column label="操作">
+                  <template slot-scope="{row,$index}">
+                    <el-button-group style="float:right;margin-bottom:10px;z-index:1;position:relative">
+
+                      <el-button v-if="row.edit" type="success" size="small" icon="el-icon-circle-check-outline"
+                        @click="confirmEdit(row)">
+                        Ok
+                      </el-button>
+                      <el-button v-else type="primary" size="small" icon="el-icon-edit" @click="row.edit = !row.edit">
+                        Edit
+                      </el-button>
+
+                      <el-button size="small" type="danger" @click="headerHandleDelete($index, row)">删除</el-button>
+                    </el-button-group>
+                  </template>
+                </el-table-column>
+
+              </el-table>
+            </el-form-item>
+          </el-col>
+          <el-row>
+            <div style="margin:20px; text-align:right">
+              <el-button @click="headerAddRow" size="small"> 新增</el-button>
+            </div>
+          </el-row>
+
+        </el-row>
+
         <el-row>
           <el-col :span="24">
             <el-form-item label="body">
@@ -155,10 +210,38 @@ export default {
           label: 'PATCH'
         },
       ],
-      value: ''
+      schemeValue: '',
+      methodValue: '',
+      tableData: [{
+        key: 'User-Agent',
+        value: 'crab http',
+        edit: false,
+      }, {
+        key: 'Accept',
+        value: '*/*',
+        edit: false,
+      }]
     }
   },
   methods: {
+    headerAddRow() {
+      const item = {
+        key: '',
+        value: ''
+      }
+      this.tableData.push(item)
+    },
+    confirmEdit(row) {
+      row.edit = false
+      row.originalTitle = row.title
+      this.$message({
+        message: 'http header key 和 value已经编辑',
+        type: 'success'
+      })
+    },
+    headerHandleDelete(index, row) {
+      this.tableData.splice(index, 1)
+    },
     onSubmit() {
       console.log('submit!');
     },
