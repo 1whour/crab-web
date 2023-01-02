@@ -16,15 +16,17 @@
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-remove" @click="handleDeleteFilter">
         删除结果
       </el-button>
-      <el-button v-waves class="filter-item" type="primary" icon="el-icon-circle-plus-outline" @click="handleFilter">
+      <el-button v-waves class="filter-item" type="primary" icon="el-icon-circle-plus-outline" @click="handleDialog">
         新建任务
       </el-button>
+      <!--
       <el-upload class="filter-item" action="https://jsonplaceholder.typicode.com/posts/" :on-preview="handlePreview"
         :on-remove="handleRemove" :before-remove="beforeRemove" multiple :limit="3" :on-exceed="handleExceed"
         :file-list="fileList">
         <el-button size="small" type="primary">点击上传</el-button>
         <div slot="tip" class="el-upload__tip">只能上传yaml文件，且不超过500kb</div>
       </el-upload>
+      -->
     </div>
 
     <el-table :key="tableKey" v-loading="listLoading" :data="list" border fit highlight-current-row style="width: 100%;"
@@ -83,6 +85,7 @@
       <span>{{ detailData.result }} </span>
 
     </el-dialog>
+    <taskNew v-if="dialogVisible" ref="taskNew"> </taskNew>
   </div>
 </template>
 
@@ -91,6 +94,7 @@ import { fetchList } from '@/api/task_list'
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
+import taskNew from "@/views/task/task_new"
 
 const calendarTypeOptions = [
   { key: 'CN', display_name: 'China' },
@@ -106,6 +110,7 @@ const calendarTypeKeyValue = calendarTypeOptions.reduce((acc, cur) => {
 }, {})
 
 export default {
+  components: { taskNew },
   name: 'ComplexTable',
   components: { Pagination },
   directives: { waves },
@@ -124,6 +129,7 @@ export default {
   },
   data() {
     return {
+      dialogVisible: false,
       tableKey: 0,
       list: null,
       total: 0,
@@ -214,6 +220,12 @@ export default {
     handleFilter() {
       this.listQuery.page = 1
       this.getList()
+    },
+    handleDialog() {
+      this.dialogVisible = true
+      this.$nextTick(() => {
+        this.$refs.taskNew.init()
+      })
     },
     handleDeleteFilter() {
       this.listQuery.page = 1

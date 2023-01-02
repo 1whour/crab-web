@@ -1,147 +1,165 @@
 <template>
-  <div>
-    <el-tabs v-model="activeName" type="card" @tab-click="handleClick">
-      <el-tab-pane v-for="(item, index) in editableTabs" :label="item.label" :name="item.name">
-      </el-tab-pane>
-    </el-tabs>
 
-    <div v-if="editableTabs[0].show === true">
-      <el-form ref=" form" :model="form" label-width="80px">
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="任务名称">
-              <el-input v-model="form.name"></el-input>
-            </el-form-item>
-          </el-col>
+  <el-dialog title="提示" :visible.sync="dialogVisible" width="100%" :before-close="handleClose">
+    <div>
+      <el-tabs v-model="activeName" type="card" @tab-click="handleClick">
+        <el-tab-pane v-for="(item, index) in editableTabs" :label="item.label" :name="item.name">
+        </el-tab-pane>
+      </el-tabs>
 
-          <el-col :span="12">
-            <el-form-item label="触发条件">
-              <el-input placeholder="请输入内容" v-model="form.trigger" class="input-with-select">
-                <el-select v-model="form.select" slot="prepend" placeholder="请选择">
-                  <el-option label="crontab表达式" value="1234"></el-option>
-                  <el-option label="一次性任务" value="1234"></el-option>
-                </el-select>
-                <el-button slot="append" icon="el-icon-plus"></el-button>
-              </el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="http/https">
-              <el-select v-model="schemeValue" placeholder="请选择method方法" class="method-select" size="big">
-                <el-option v-for="item in schemeOptions" :key="item.value" :label="item.label" :value="item.value">
-                </el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-
-          <el-col :span="12">
-            <el-form-item label="method">
-              <el-select v-model="methodValue" placeholder="请选择method方法" class="method-select" size="big">
-                <el-option v-for="item in methodOptions" :key="item.value" :label="item.label" :value="item.value">
-                </el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-        </el-row>
-
-        <el-row>
-          <el-col :span="24">
-            <el-form-item label="header">
-              <el-divider></el-divider>
-              <el-table :data="tableData" style="width: 100%">
-
-                <el-table-column min-width="300px" label="header key">
-                  <template slot-scope="{row}">
-                    <template v-if="row.edit">
-                      <el-input v-model="row.key" class="edit-input" size="small"
-                        style="float:right;margin-bottom:10px;z-index:1;position:relative" />
-                    </template>
-                    <span v-else>{{ row.key }}</span>
-                  </template>
-                </el-table-column>
-
-                <el-table-column min-width="300px" label="header value">
-                  <template slot-scope="{row}">
-                    <template v-if="row.edit">
-                      <el-input v-model="row.value" class="edit-input" size="small"
-                        style="float:right;margin-bottom:10px;z-index:1;position:relative" />
-                    </template>
-                    <span v-else>{{ row.value }}</span>
-                  </template>
-                </el-table-column>
-
-                <el-table-column label="操作">
-                  <template slot-scope="{row,$index}">
-                    <el-button-group style="float:right;margin-bottom:10px;z-index:1;position:relative">
-
-                      <el-button v-if="row.edit" type="success" size="small" icon="el-icon-circle-check-outline"
-                        @click="confirmEdit(row)">
-                        Ok
-                      </el-button>
-                      <el-button v-else type="primary" size="small" icon="el-icon-edit" @click="row.edit = !row.edit">
-                        Edit
-                      </el-button>
-
-                      <el-button size="small" type="danger" @click="headerHandleDelete($index, row)">删除</el-button>
-                    </el-button-group>
-                  </template>
-                </el-table-column>
-
-              </el-table>
-            </el-form-item>
-          </el-col>
+      <div v-if="editableTabs[0].show === true">
+        <el-form ref=" form" :model="form" label-width="80px">
           <el-row>
-            <div style="margin:20px; text-align:right">
-              <el-button @click="headerAddRow" size="small"> 新增</el-button>
-            </div>
+            <el-col :span="12">
+              <el-form-item label="任务名称">
+                <el-input v-model="form.name"></el-input>
+              </el-form-item>
+            </el-col>
+
+            <el-col :span="12">
+              <el-form-item label="触发条件">
+                <el-input placeholder="请输入内容" v-model="form.trigger" class="input-with-select">
+                  <el-select v-model="form.select" slot="prepend" placeholder="请选择">
+                    <el-option label="crontab表达式" value="1234"></el-option>
+                    <el-option label="一次性任务" value="1234"></el-option>
+                  </el-select>
+                  <el-button slot="append" icon="el-icon-plus"></el-button>
+                </el-input>
+              </el-form-item>
+            </el-col>
           </el-row>
 
-        </el-row>
-
-        <el-row>
-          <el-col :span="24">
-            <el-form-item label="body">
-              <el-input type="textarea" v-model="form.body" :rows=8></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </el-form>
-    </div>
-
-    <div v-if="editableTabs[1].show === true">
-      <el-form ref="form" :model="form" label-width="80px">
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="任务名称">
-              <el-input v-model="form.name"></el-input>
-            </el-form-item>
-          </el-col>
-
-          <el-col :span="12">
-            <el-form-item label="触发条件">
-              <el-input placeholder="请输入内容" v-model="form.trigger" class="input-with-select">
-                <el-select v-model="form.select" slot="prepend" placeholder="请选择">
-                  <el-option label="crontab表达式" value="1234"></el-option>
-                  <el-option label="一次性任务" value="1234"></el-option>
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="http/https">
+                <el-select v-model="schemeValue" placeholder="请选择method方法" class="method-select" size="big">
+                  <el-option v-for="item in schemeOptions" :key="item.value" :label="item.label" :value="item.value">
+                  </el-option>
                 </el-select>
-                <el-button slot="append" icon="el-icon-plus"></el-button>
-              </el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="24">
-            <el-form-item label="shell脚本">
-              <el-input type="textarea" v-model="form.body" :rows=8></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </el-form>
+              </el-form-item>
+            </el-col>
+
+            <el-col :span="12">
+              <el-form-item label="method">
+                <el-select v-model="methodValue" placeholder="请选择method方法" class="method-select" size="big">
+                  <el-option v-for="item in methodOptions" :key="item.value" :label="item.label" :value="item.value">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+          </el-row>
+
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="URL">
+                <el-input v-model="form.URL" class="edit-input" size="small"
+                  style="float:right;margin-bottom:10px;z-index:1;position:relative" />
+              </el-form-item>
+            </el-col>
+          </el-row>
+
+          <el-row>
+            <el-col :span="24">
+              <el-form-item label="Headers">
+                <el-divider></el-divider>
+                <el-table :data="tableData" style="width: 100%">
+
+                  <el-table-column min-width="230px" label="KEY">
+                    <template slot-scope="{row}">
+                      <template v-if="row.edit">
+                        <el-input v-model="row.key" class="edit-input" size="small"
+                          style="float:right;margin-bottom:10px;z-index:1;position:relative" />
+                      </template>
+                      <span v-else>{{ row.key }}</span>
+                    </template>
+                  </el-table-column>
+
+                  <el-table-column min-width="230px" label="VALUE">
+                    <template slot-scope="{row}">
+                      <template v-if="row.edit">
+                        <el-input v-model="row.value" class="edit-input" size="small"
+                          style="float:right;margin-bottom:10px;z-index:1;position:relative" />
+                      </template>
+                      <span v-else>{{ row.value }}</span>
+                    </template>
+                  </el-table-column>
+
+                  <el-table-column label="操作">
+                    <template slot-scope="{row,$index}">
+                      <el-button-group style="float:right;margin-bottom:10px;z-index:1;position:relative">
+
+                        <el-button v-if="row.edit" type="success" size="small" icon="el-icon-circle-check-outline"
+                          @click="confirmEdit(row)">
+                          Ok
+                        </el-button>
+                        <el-button v-else type="primary" size="small" icon="el-icon-edit" @click="row.edit = !row.edit">
+                          Edit
+                        </el-button>
+
+                        <el-button type="danger" size="small" icon="el-icon-delete"
+                          @click="headerHandleDelete($index, row)">删除</el-button>
+                      </el-button-group>
+                    </template>
+                  </el-table-column>
+
+                </el-table>
+              </el-form-item>
+            </el-col>
+            <el-row>
+              <div style="margin:20px; text-align:right">
+                <el-button type="success" icon="el-icon-folder-add" @click="headerAddRow" size="small">新增</el-button>
+              </div>
+            </el-row>
+
+          </el-row>
+
+          <el-row>
+            <el-col :span="24">
+              <el-form-item label="body">
+                <el-input type="textarea" v-model="form.body" :rows=8></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+
+          <el-form-item>
+            <el-button type="primary" @click="onSubmit">立即创建</el-button>
+            <el-button>取消</el-button>
+          </el-form-item>
+        </el-form>
+      </div>
+
+      <div v-if="editableTabs[1].show === true">
+        <el-form ref="form" :model="form" label-width="80px">
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="任务名称">
+                <el-input v-model="form.name"></el-input>
+              </el-form-item>
+            </el-col>
+
+            <el-col :span="12">
+              <el-form-item label="触发条件">
+                <el-input placeholder="请输入内容" v-model="form.trigger" class="input-with-select">
+                  <el-select v-model="form.select" slot="prepend" placeholder="请选择">
+                    <el-option label="crontab表达式" value="1234"></el-option>
+                    <el-option label="一次性任务" value="1234"></el-option>
+                  </el-select>
+                  <el-button slot="append" icon="el-icon-plus"></el-button>
+                </el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="24">
+              <el-form-item label="shell脚本">
+                <el-input type="textarea" v-model="form.body" :rows=8></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </el-form>
+      </div>
     </div>
-  </div>
+  </el-dialog>
 </template>
 
 <style>
@@ -175,9 +193,11 @@ export default {
         method: '',
         type: [],
         trigger: '',
+        URL: '',
         activeName: '',
         select: ''
       },
+      dialogVisible: false,
       schemeOptions: [
         {
           value: 'HTTP',
@@ -210,24 +230,21 @@ export default {
           label: 'PATCH'
         },
       ],
-      schemeValue: '',
-      methodValue: '',
-      tableData: [{
-        key: 'User-Agent',
-        value: 'crab http',
-        edit: false,
-      }, {
-        key: 'Accept',
-        value: '*/*',
-        edit: false,
-      }]
+      schemeValue: 'http',
+      methodValue: 'GET',
+      tableData: [
+      ]
     }
   },
   methods: {
+    init() {
+      this.dialogVisible = true
+    },
     headerAddRow() {
       const item = {
         key: '',
-        value: ''
+        value: '',
+        edit: true,
       }
       this.tableData.push(item)
     },
