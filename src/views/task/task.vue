@@ -85,7 +85,7 @@
       <span>{{ detailData.result }} </span>
 
     </el-dialog>
-    <taskNew v-if="dialogVisible" ref="taskNew"> </taskNew>
+    <TaskNew v-if="dialogVisible" ref="TaskNew"> </TaskNew>
   </div>
 </template>
 
@@ -94,7 +94,7 @@ import { fetchList } from '@/api/task_list'
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
-import taskNew from "@/views/task/task_new"
+import TaskNew from "@/views/task/task_new"
 
 const calendarTypeOptions = [
   { key: 'CN', display_name: 'China' },
@@ -110,9 +110,11 @@ const calendarTypeKeyValue = calendarTypeOptions.reduce((acc, cur) => {
 }, {})
 
 export default {
-  components: { taskNew },
   name: 'ComplexTable',
-  components: { Pagination },
+  components: {
+    Pagination,
+    TaskNew
+  },
   directives: { waves },
   filters: {
     statusFilter(status) {
@@ -224,7 +226,7 @@ export default {
     handleDialog() {
       this.dialogVisible = true
       this.$nextTick(() => {
-        this.$refs.taskNew.init()
+        this.$refs.TaskNew.init()
       })
     },
     handleDeleteFilter() {

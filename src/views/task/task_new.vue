@@ -177,7 +177,6 @@
 </style>
 <script>
 // 参考
-// https://www.jianshu.com/p/b0259e728a39
 export default {
   data() {
     return {
@@ -261,6 +260,9 @@ export default {
     },
     onSubmit() {
       console.log('submit!');
+    },
+    handleClose() {
+
     },
     handleClick(el) {
       this.editableTabs[el.index].show = true
