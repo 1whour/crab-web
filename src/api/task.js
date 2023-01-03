@@ -7,3 +7,11 @@ export function createTask(data) {
     data
   })
 }
+
+export function deleteTask(data) {
+  return request({
+    url: '/crab/task/',
+    method: 'delete',
+    data
+  })
+}

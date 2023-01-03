@@ -67,7 +67,7 @@
       <el-table-column label="操作" align="center" width="" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
           <el-button type="primary" size="mini" @click="getResult(row)">
-            详细日志
+            详细task
           </el-button>
           <el-button v-if="row.status != 'deleted'" size="mini" type="danger" @click="handleDelete(row, $index)">
             删除
@@ -92,9 +92,9 @@
 <script>
 import { fetchList } from '@/api/task_list'
 import waves from '@/directive/waves' // waves directive
-import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 import TaskNew from "@/views/task/task_new"
+import { deleteTask } from '@/api/task'
 
 const calendarTypeOptions = [
   { key: 'CN', display_name: 'China' },
@@ -277,7 +277,18 @@ export default {
       return this.$confirm(`确定移除 ${file.name}？`);
     },
     handleDelete(row, index) {
-      deleteList({ ID: row.ID, task_id: row.task_id, task_name: row.task_name }).then(() => {
+
+      deleteTask({
+        apiVersion: "v0.0.1",
+        kind: "oneRuntime",
+        trigger: {
+          cron: '* * * * * *',
+        },
+        executer: {
+          taskName: row.task_name,
+        }
+
+      }).then(() => {
         this.list.splice(index, 1)
         this.dialogFormVisible = false
         this.$notify({
