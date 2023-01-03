@@ -16,7 +16,7 @@
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-remove" @click="handleDeleteFilter">
         删除结果
       </el-button>
-      <el-button v-waves class="filter-item" type="primary" icon="el-icon-circle-plus-outline" @click="handleDialog">
+      <el-button v-waves class="filter-item" type="primary" icon="el-icon-circle-plus-outline" @click="createDialog">
         新建任务
       </el-button>
       <!--
@@ -66,8 +66,8 @@
 
       <el-table-column label="操作" align="center" width="" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
-          <el-button type="primary" size="mini" @click="getResult(row)">
-            详细task
+          <el-button type="primary" size="mini" @click="modifyDialog(row.task)">
+            编辑task
           </el-button>
           <el-button v-if="row.status != 'deleted'" size="mini" type="danger" @click="handleDelete(row, $index)">
             删除
@@ -80,11 +80,6 @@
       @pagination="getList" />
 
 
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" :v-model="detailData">
-
-      <span>{{ detailData.result }} </span>
-
-    </el-dialog>
     <TaskNew v-if="dialogVisible" ref="TaskNew"> </TaskNew>
   </div>
 </template>
@@ -102,7 +97,6 @@ const calendarTypeOptions = [
   { key: 'JP', display_name: 'Japan' },
   { key: 'EU', display_name: 'Eurozone' }
 ]
-
 // arr to obj, such as { CN : "China", US : "USA" }
 const calendarTypeKeyValue = calendarTypeOptions.reduce((acc, cur) => {
   acc[cur.key] = cur.display_name
@@ -223,10 +217,18 @@ export default {
       this.listQuery.page = 1
       this.getList()
     },
-    handleDialog() {
+    modifyDialog(task) {
+      this.dialogVisible = true
+      this.$nextTick(() => {
+        this.$refs.TaskNew.init(task)
+        this.getList()
+      })
+    },
+    createDialog() {
       this.dialogVisible = true
       this.$nextTick(() => {
         this.$refs.TaskNew.init()
+        this.getList()
       })
     },
     handleDeleteFilter() {

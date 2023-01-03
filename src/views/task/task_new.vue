@@ -31,6 +31,17 @@
 
           <el-row>
             <el-col :span="12">
+              <el-form-item label="执行方式">
+                <el-select v-model="form.kind" placeholder="请选择method方法" class="method-select" size="big">
+                  <el-option v-for="item in kindOptions" :key="item.value" :label="item.label" :value="item.value">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+          </el-row>
+
+          <el-row>
+            <el-col :span="12">
               <el-form-item label="http/https">
                 <el-select v-model="form.scheme" placeholder="请选择method方法" class="method-select" size="big">
                   <el-option v-for="item in schemeOptions" :key="item.value" :label="item.label" :value="item.value">
@@ -56,14 +67,7 @@
                   style="float:right;margin-bottom:10px;z-index:1;position:relative" />
               </el-form-item>
             </el-col>
-            <el-col :span="12">
-              <el-form-item label="执行方式">
-                <el-select v-model="form.kind" placeholder="请选择method方法" class="method-select" size="big">
-                  <el-option v-for="item in kindOptions" :key="item.value" :label="item.label" :value="item.value">
-                  </el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
+
           </el-row>
 
           <el-row>
@@ -130,8 +134,14 @@
           </el-row>
 
           <el-form-item>
-            <el-button type="primary" @click="onSubmit">立即创建</el-button>
-            <el-button>取消</el-button>
+            <el-button v-if="createSubmit" type="success" size="small" icon="el-icon-circle-check-outline"
+              @click="onSubmit(true)">
+              创建task
+            </el-button>
+            <el-button v-else type="primary" size="small" icon="el-icon-edit" @click="onSubmit(false)">
+              更新task
+            </el-button>
+            <el-button type="info" size="small" icon="el-icon-cold-drink">取消</el-button>
           </el-form-item>
         </el-form>
       </div>
@@ -185,7 +195,7 @@
 </style>
 <script>
 
-import { createTask } from '@/api/task'
+import { createTask, updateTask } from '@/api/task'
 
 export default {
   data() {
@@ -205,10 +215,11 @@ export default {
         kind: 'oneRuntime',
         select: 'cron',
         scheme: 'http',
-        headers: [
-        ]
+        headers: [],
+        querys: [],
       },
       dialogVisible: false,
+      createSubmit: false,
       schemeOptions: [
         {
           value: 'HTTP',
@@ -254,7 +265,22 @@ export default {
     }
   },
   methods: {
-    init() {
+    init(row) {
+      if (row) {
+        this.createSubmit = false
+        var executer = row.executer
+        var httpObj = executer.http
+
+        this.form.name = executer.taskName
+        this.form.body = httpObj.body
+        this.form.kind = row.kind
+        this.form.scheme = httpObj.scheme
+        this.form.method = httpObj.method
+        this.form.tmpTrigger = row.trigger.cron
+      } else {
+        this.createSubmit = true
+      }
+      console.log("createSubmit", this.createSubmit)
       this.dialogVisible = true
     },
     headerAddRow() {
@@ -276,7 +302,7 @@ export default {
     headerHandleDelete(index, row) {
       this.form.headers.splice(index, 1)
     },
-    onSubmit() {
+    onSubmit(create) {
 
 
       var urlObj = {}
@@ -290,11 +316,21 @@ export default {
         console.log("parse url", e)
       }
 
-      console.log("###", urlObj)
+      if (urlObj.search) {
 
+        const searchParams = new URLSearchParams(urlObj.search);
+
+        // Iterating the search parameters
+        searchParams.forEach((value, key) => {
+          this.form.querys.push({ name: key, value: value })
+          console.log(value, key);
+        });
+
+      }
       var temp = {
         apiVersion: "v0.0.1",
         kind: this.form.kind,
+        action: "create",
         trigger: {
           cron: '',
           once: '',
@@ -318,10 +354,22 @@ export default {
         temp.trigger[this.form.select] = this.form.tmpTrigger
       }
 
-      createTask(temp)
+      if (!create) {
+        temp.action = "update"
+        updateTask(temp)
+      } else {
+        createTask(temp)
+      }
+      this.$message({
+        message: '成功',
+        type: 'success'
+      })
+      this.dialogVisible = false
       console.log('submit!', this.form.select);
     },
     handleClose(done) {
+      this.createSubmit = true
+      this.form = {}
       done()
     },
     handleClick(el) {

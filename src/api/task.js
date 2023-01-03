@@ -15,3 +15,11 @@ export function deleteTask(data) {
     data
   })
 }
+
+export function updateTask(data) {
+  return request({
+    url: '/crab/task/',
+    method: 'put',
+    data
+  })
+}
