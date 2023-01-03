@@ -88,13 +88,6 @@ export default {
       rulesData: ['admin', 'editer'],
       statusOptions: ['published', 'draft', 'deleted'],
       showReviewer: false,
-      temp: {
-        id: undefined,
-        start_time: undefined,
-        end_time: undefined,
-        type: '',
-        status: 'published'
-      },
       dialogFormVisible: false,
       dialogStatus: '',
       textMap: {

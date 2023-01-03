@@ -18,10 +18,10 @@
 
             <el-col :span="12">
               <el-form-item label="触发条件">
-                <el-input placeholder="请输入内容" v-model="form.trigger" class="input-with-select">
+                <el-input placeholder="请输入内容" v-model="form.tmpTrigger" class="input-with-select">
                   <el-select v-model="form.select" slot="prepend" placeholder="请选择">
-                    <el-option label="crontab表达式" value="1234"></el-option>
-                    <el-option label="一次性任务" value="1234"></el-option>
+                    <el-option label="crontab表达式" value="cron"></el-option>
+                    <el-option label="一次性任务" value="once"></el-option>
                   </el-select>
                   <el-button slot="append" icon="el-icon-plus"></el-button>
                 </el-input>
@@ -32,7 +32,7 @@
           <el-row>
             <el-col :span="12">
               <el-form-item label="http/https">
-                <el-select v-model="schemeValue" placeholder="请选择method方法" class="method-select" size="big">
+                <el-select v-model="form.scheme" placeholder="请选择method方法" class="method-select" size="big">
                   <el-option v-for="item in schemeOptions" :key="item.value" :label="item.label" :value="item.value">
                   </el-option>
                 </el-select>
@@ -41,7 +41,7 @@
 
             <el-col :span="12">
               <el-form-item label="method">
-                <el-select v-model="methodValue" placeholder="请选择method方法" class="method-select" size="big">
+                <el-select v-model="form.method" placeholder="请选择method方法" class="method-select" size="big">
                   <el-option v-for="item in methodOptions" :key="item.value" :label="item.label" :value="item.value">
                   </el-option>
                 </el-select>
@@ -56,21 +56,29 @@
                   style="float:right;margin-bottom:10px;z-index:1;position:relative" />
               </el-form-item>
             </el-col>
+            <el-col :span="12">
+              <el-form-item label="执行方式">
+                <el-select v-model="form.kind" placeholder="请选择method方法" class="method-select" size="big">
+                  <el-option v-for="item in kindOptions" :key="item.value" :label="item.label" :value="item.value">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
           </el-row>
 
           <el-row>
             <el-col :span="24">
               <el-form-item label="Headers">
                 <el-divider></el-divider>
-                <el-table :data="tableData" style="width: 100%">
+                <el-table :data="form.headers" style="width: 100%">
 
                   <el-table-column min-width="230px" label="KEY">
                     <template slot-scope="{row}">
                       <template v-if="row.edit">
-                        <el-input v-model="row.key" class="edit-input" size="small"
+                        <el-input v-model="row.name" class="edit-input" size="small"
                           style="float:right;margin-bottom:10px;z-index:1;position:relative" />
                       </template>
-                      <span v-else>{{ row.key }}</span>
+                      <span v-else>{{ row.name }} </span>
                     </template>
                   </el-table-column>
 
@@ -80,7 +88,7 @@
                         <el-input v-model="row.value" class="edit-input" size="small"
                           style="float:right;margin-bottom:10px;z-index:1;position:relative" />
                       </template>
-                      <span v-else>{{ row.value }}</span>
+                      <span v-else>{{ row.value }} </span>
                     </template>
                   </el-table-column>
 
@@ -139,7 +147,7 @@
 
             <el-col :span="12">
               <el-form-item label="触发条件">
-                <el-input placeholder="请输入内容" v-model="form.trigger" class="input-with-select">
+                <el-input placeholder="请输入内容" v-model="form.tmpTrigger" class="input-with-select">
                   <el-select v-model="form.select" slot="prepend" placeholder="请选择">
                     <el-option label="crontab表达式" value="1234"></el-option>
                     <el-option label="一次性任务" value="1234"></el-option>
@@ -176,7 +184,9 @@
 }
 </style>
 <script>
-// 参考
+
+import { createTask } from '@/api/task'
+
 export default {
   data() {
     return {
@@ -188,13 +198,15 @@ export default {
       ],
       form: {
         name: '',
-        scheme: '',
-        method: '',
+        method: 'GET',
         type: [],
-        trigger: '',
+        tmpTrigger: '',
         URL: '',
-        activeName: '',
-        select: ''
+        kind: 'oneRuntime',
+        select: 'cron',
+        scheme: 'http',
+        headers: [
+        ]
       },
       dialogVisible: false,
       schemeOptions: [
@@ -205,6 +217,16 @@ export default {
         {
           value: 'HTTPS',
           label: 'HTTPS'
+        },
+      ],
+      kindOptions: [
+        {
+          value: 'oneRuntime',
+          label: 'oneRuntime'
+        },
+        {
+          value: 'broadcast',
+          label: 'broadcast'
         },
       ],
       methodOptions: [
@@ -229,10 +251,6 @@ export default {
           label: 'PATCH'
         },
       ],
-      schemeValue: 'http',
-      methodValue: 'GET',
-      tableData: [
-      ]
     }
   },
   methods: {
@@ -241,11 +259,11 @@ export default {
     },
     headerAddRow() {
       const item = {
-        key: '',
+        name: '',
         value: '',
         edit: true,
       }
-      this.tableData.push(item)
+      this.form.headers.push(item)
     },
     confirmEdit(row) {
       row.edit = false
@@ -256,13 +274,55 @@ export default {
       })
     },
     headerHandleDelete(index, row) {
-      this.tableData.splice(index, 1)
+      this.form.headers.splice(index, 1)
     },
     onSubmit() {
-      console.log('submit!');
-    },
-    handleClose() {
 
+
+      var urlObj = {}
+      try {
+        var url = this.form.URL
+        if (!this.form.URL.substr(0, 4) == "http") {
+          url = this.form.scheme + "://" + this.form.URL
+        }
+        urlObj = new URL(url)
+      } catch (e) {
+        console.log("parse url", e)
+      }
+
+      console.log("###", urlObj)
+
+      var temp = {
+        apiVersion: "v0.0.1",
+        kind: this.form.kind,
+        trigger: {
+          cron: '',
+          once: '',
+        },
+        executer: {
+          taskName: this.form.name,
+          http: {
+            host: url.hostname,
+            port: url.port,
+            path: url.pathname,
+            method: this.form.method,
+            scheme: this.form.scheme,
+            headers: this.form.headers,
+            body: this.form.body
+          }
+        }
+      }
+
+      if (this.form.select) {
+        // cron 或者once
+        temp.trigger[this.form.select] = this.form.tmpTrigger
+      }
+
+      createTask(temp)
+      console.log('submit!', this.form.select);
+    },
+    handleClose(done) {
+      done()
     },
     handleClick(el) {
       this.editableTabs[el.index].show = true

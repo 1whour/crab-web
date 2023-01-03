@@ -69,20 +69,6 @@ export const constantRoutes = [
     ]
   },
   {
-    path: '/tmp',
-    component: Layout,
-    //redirect: '/example/table',
-    children: [
-      {
-        path: 'index',
-        //name: 'user-list',
-        //component: () => import('@/views/table/index.vue'),
-        component: () => import('@/views/task/task_new.vue'),
-        meta: { title: '新建任务', icon: 'el-icon-user' },
-      }
-    ]
-  },
-  {
     path: '/cluster',
     component: Layout,
     //redirect: '/permission/page',
