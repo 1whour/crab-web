@@ -311,12 +311,12 @@ export default {
       var urlObj = {}
       try {
         var url = this.form.URL
-        if (!this.form.URL.substr(0, 4) == "http") {
+        if (this.form.URL.substr(0, 4) != "http") {
           url = this.form.scheme + "://" + this.form.URL
         }
         urlObj = new URL(url)
       } catch (e) {
-        console.log("parse url", e)
+        console.log("parse url", e, url)
       }
 
       if (urlObj.search) {
@@ -341,9 +341,9 @@ export default {
         executer: {
           taskName: this.form.name,
           http: {
-            host: url.hostname,
-            port: url.port,
-            path: url.pathname,
+            host: urlObj.hostname,
+            port: Number(urlObj.port),
+            path: urlObj.pathname,
             method: this.form.method,
             scheme: this.form.scheme,
             headers: this.form.headers,
@@ -357,6 +357,7 @@ export default {
         temp.trigger[this.form.select] = this.form.tmpTrigger
       }
 
+      console.log("##", temp.executer.http)
       if (!create) {
         temp.action = "update"
         updateTask(temp)
