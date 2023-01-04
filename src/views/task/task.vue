@@ -67,7 +67,13 @@
       <el-table-column label="操作" align="center" width="" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
           <el-button type="primary" size="mini" @click="modifyDialog(row.task)">
-            编辑task
+            编辑
+          </el-button>
+          <el-button v-if="row.status != 'deleted'" size="mini" type="warning" @click="handleStop(row, $index)">
+            停止
+          </el-button>
+          <el-button v-if="row.status != 'deleted'" size="mini" type="success" @click="handleRecovery(row, $index)">
+            继续
           </el-button>
           <el-button v-if="row.status != 'deleted'" size="mini" type="danger" @click="handleDelete(row, $index)">
             删除
@@ -89,7 +95,7 @@ import { fetchList } from '@/api/task_list'
 import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 import TaskNew from "@/views/task/task_new"
-import { deleteTask } from '@/api/task'
+import { deleteTask, stopTask, updateTask } from '@/api/task'
 
 const calendarTypeOptions = [
   { key: 'CN', display_name: 'China' },
@@ -278,6 +284,35 @@ export default {
     beforeRemove(file, fileList) {
       return this.$confirm(`确定移除 ${file.name}？`);
     },
+
+    handleRecovery(row, index) {
+      var newRow = Object.assign({}, row)
+      newRow.task.action = "update"
+      updateTask(newRow.task).then(() => {
+        this.list.splice(index, 1, newRow)
+
+        this.$notify({
+          username: 'Success',
+          message: 'Update Successfully',
+          type: 'success',
+          duration: 2000
+        })
+      })
+    },
+    handleStop(row, index) {
+      var newRow = Object.assign({}, row)
+      newRow.task.action = "stop"
+      stopTask(newRow.task).then(() => {
+        this.list.splice(index, 1, newRow)
+        this.$notify({
+          username: 'Success',
+          message: 'Stop Successfully',
+          type: 'success',
+          duration: 2000
+        })
+      })
+    },
+
     handleDelete(row, index) {
 
       deleteTask({

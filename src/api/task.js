@@ -23,3 +23,11 @@ export function updateTask(data) {
     data
   })
 }
+
+export function stopTask(data) {
+  return request({
+    url: '/crab/task/stop',
+    method: 'post',
+    data
+  })
+}

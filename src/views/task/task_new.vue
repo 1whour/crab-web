@@ -274,6 +274,9 @@ export default {
         this.form.name = executer.taskName
         this.form.body = httpObj.body
         this.form.kind = row.kind
+        if (row.trigger.cron) {
+          this.form.select = "cron"
+        }
         this.form.scheme = httpObj.scheme
         this.form.method = httpObj.method
         this.form.tmpTrigger = row.trigger.cron
