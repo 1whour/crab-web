@@ -274,6 +274,8 @@ export default {
         this.form.name = executer.taskName
         this.form.body = httpObj.body
         this.form.kind = row.kind
+        //TODO
+        this.form.URL = httpObj.host + httpObj.path
         if (row.trigger.cron) {
           this.form.select = "cron"
         }
