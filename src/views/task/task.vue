@@ -69,10 +69,10 @@
           <el-button type="primary" size="mini" @click="modifyDialog(row.task)">
             编辑
           </el-button>
-          <el-button v-if="row.status != 'deleted'" size="mini" type="warning" @click="handleStop(row, $index)">
+          <el-button v-if="row.action != 'stop'" size="mini" type="warning" @click="handleStop(row, $index)">
             停止
           </el-button>
-          <el-button v-if="row.status != 'deleted'" size="mini" type="success" @click="handleRecovery(row, $index)">
+          <el-button v-if="row.action == 'stop'" size="mini" type="success" @click="handleRecovery(row, $index)">
             继续
           </el-button>
           <el-button v-if="row.status != 'deleted'" size="mini" type="danger" @click="handleDelete(row, $index)">
@@ -191,10 +191,7 @@ export default {
         this.list = response.data.items
         this.total = response.data.total
 
-        // Just to simulate the time of the request
-        setTimeout(() => {
-          this.listLoading = false
-        }, 0.2 * 1000)
+        this.listLoading = false
       })
     },
     delList() {
@@ -291,6 +288,8 @@ export default {
       updateTask(newRow.task).then(() => {
         this.list.splice(index, 1, newRow)
 
+        this.getList()
+
         this.$notify({
           username: 'Success',
           message: 'Update Successfully',
@@ -304,6 +303,7 @@ export default {
       newRow.task.action = "stop"
       stopTask(newRow.task).then(() => {
         this.list.splice(index, 1, newRow)
+        this.getList()
         this.$notify({
           username: 'Success',
           message: 'Stop Successfully',
