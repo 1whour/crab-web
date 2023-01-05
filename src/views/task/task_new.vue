@@ -371,11 +371,13 @@ export default {
         type: 'success'
       })
       this.dialogVisible = false
+      this.$emit("refreshGetList")
       console.log('submit!', this.form.select);
     },
     handleClose(done) {
       this.createSubmit = true
       this.form = {}
+      this.$emit("refreshGetList")
       done()
     },
     handleClick(el) {

@@ -86,7 +86,7 @@
       @pagination="getList" />
 
 
-    <TaskNew v-if="dialogVisible" ref="TaskNew"> </TaskNew>
+    <TaskNew v-if="dialogVisible" ref="TaskNew" @refreshGetList="getList"> </TaskNew>
   </div>
 </template>
 
