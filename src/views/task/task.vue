@@ -75,7 +75,7 @@
           <el-button v-if="row.action == 'stop'" size="mini" type="success" @click="handleRecovery(row, $index)">
             继续
           </el-button>
-          <el-button v-if="row.status != 'deleted'" size="mini" type="danger" @click="handleDelete(row, $index)">
+          <el-button size="mini" type="danger" @click="handleDelete(row, $index)">
             删除
           </el-button>
         </template>

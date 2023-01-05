@@ -313,7 +313,7 @@ export default {
       var urlObj = {}
       try {
         var url = this.form.URL
-        if (this.form.URL.substr(0, 4) != "http") {
+        if (this.form.URL.substr(0, 7) != "http://" && this.form.URL.substr(0, 8) != "https://") {
           url = this.form.scheme + "://" + this.form.URL
         }
         urlObj = new URL(url)
@@ -359,7 +359,7 @@ export default {
         temp.trigger[this.form.select] = this.form.tmpTrigger
       }
 
-      console.log("##", temp.executer.http)
+      console.log("create task data", temp.executer.http)
       if (!create) {
         temp.action = "update"
         updateTask(temp)
