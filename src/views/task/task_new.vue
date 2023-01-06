@@ -206,6 +206,18 @@ export default {
         { name: "shell_task", label: "创建shell任务", show: false },
         { name: "lambda_task", label: "创建lambda任务", show: false },
       ],
+      deform: {
+        name: '',
+        method: 'GET',
+        type: [],
+        tmpTrigger: '',
+        URL: '',
+        kind: 'oneRuntime',
+        select: 'cron',
+        scheme: 'http',
+        headers: [],
+        querys: [],
+      },
       form: {
         name: '',
         method: 'GET',
@@ -366,17 +378,18 @@ export default {
       } else {
         createTask(temp)
       }
+      this.dialogVisible = false
+      this.$emit("refreshGetList")
       this.$message({
         message: '成功',
         type: 'success'
       })
-      this.dialogVisible = false
-      this.$emit("refreshGetList")
       console.log('submit!', this.form.select);
     },
     handleClose(done) {
       this.createSubmit = true
-      this.form = {}
+      // 赋个初值
+      this.form = Object.assign({}, this.deform)
       this.$emit("refreshGetList")
       done()
     },

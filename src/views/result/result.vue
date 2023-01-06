@@ -20,8 +20,7 @@
 
     <el-table :key="tableKey" v-loading="listLoading" :data="list" border fit highlight-current-row style="width: 100%;"
       @sort-change="sortChange">
-      <el-table-column label="ID" prop="id" sortable="custom" align="center" width="80"
-        :class-name="getSortClass('id')">
+      <el-table-column label="ID" prop="id" sortable="ID" align="center" width="80" :class-name="getSortClass('id')">
         <template slot-scope="{row}">
           <span>{{ row.ID }}</span>
         </template>
@@ -41,7 +40,7 @@
           <span>{{ row.task_type }} </span>
         </template>
       </el-table-column>
-      <el-table-column label="状态" width="80px" align="center">
+      <el-table-column label="状态" prop="task_status" sortable="task_status" width="80px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.task_status }}</span>
         </template>
@@ -222,15 +221,15 @@ export default {
     },
     sortChange(data) {
       const { prop, order } = data
-      if (prop === 'id') {
-        this.sortByID(order)
+      if (prop === 'id' || prop === 'task_status') {
+        this.sortByID(order, prop)
       }
     },
-    sortByID(order) {
+    sortByID(order, prop) {
       if (order === 'ascending') {
-        this.listQuery.sort = '+id'
+        this.listQuery.sort = '+' + prop
       } else {
-        this.listQuery.sort = '-id'
+        this.listQuery.sort = '-' + prop
       }
       this.handleFilter()
     },

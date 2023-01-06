@@ -231,7 +231,6 @@ export default {
       this.dialogVisible = true
       this.$nextTick(() => {
         this.$refs.TaskNew.init()
-        this.getList()
       })
     },
     handleDeleteFilter() {
