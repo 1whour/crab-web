@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input v-model="listQuery.task_id" placeholder="任务id" style="width: 200px;" class="filter-item"
+      <el-input v-model="listQuery.runtime_id" placeholder="runtime id" style="width: 200px;" class="filter-item"
         @keyup.enter.native="handleFilter" />
       <el-select v-model="listQuery.sort" style="width: 140px" class="filter-item" @change="handleFilter">
         <el-option v-for="item in sortOptions" :key="item.key" :label="item.label" :value="item.key" />
@@ -31,10 +31,10 @@
 
     <el-table :key="tableKey" v-loading="listLoading" :data="list" border fit highlight-current-row style="width: 100%;"
       @sort-change="sortChange">
-      <el-table-column label="ID" prop="task_id" sortable="custom" align="center" width="140"
+      <el-table-column label="runtime ID" prop="runtime_id" sortable="custom" align="center" width="140"
         :class-name="getSortClass('id')">
         <template slot-scope="{row}">
-          <span>{{ row.task_id }}</span>
+          <span>{{ row.runtime_id }}</span>
         </template>
       </el-table-column>
       <el-table-column label="任务名" width="150px" align="center">
@@ -201,7 +201,7 @@ export default {
       var tmpData = {
         start_time: this.searchTimeRange[0],
         end_time: this.searchTimeRange[1],
-        task_id: this.task_id,
+        runtime_id: this.runtime_id,
         page: this.listQuery.page,
         limit: this.listQuery.limit,
         need_update: true,
@@ -260,7 +260,7 @@ export default {
     },
     resetTemp() {
       this.temp = {
-        task_id: undefined,
+        runtime_id: undefined,
         type: ''
       }
     },
