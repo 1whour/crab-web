@@ -27,7 +27,14 @@ export function updateTask(data) {
 export function stopTask(data) {
   return request({
     url: '/crab/task/stop',
-    method: 'post',
+    method: 'patch',
+    data
+  })
+}
+export function continueTask(data) {
+  return request({
+    url: '/crab/task/continue',
+    method: 'patch',
     data
   })
 }

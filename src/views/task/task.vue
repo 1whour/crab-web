@@ -67,10 +67,10 @@
           <el-button type="primary" size="mini" @click="modifyDialog(row.task)">
             编辑
           </el-button>
-          <el-button v-if="row.action != 'stop'" size="mini" type="warning" @click="handleStop(row, $index)">
+          <el-button v-if="row.status != 'stop'" size="mini" type="warning" @click="handleStop(row, $index)">
             停止
           </el-button>
-          <el-button v-if="row.action == 'stop'" size="mini" type="success" @click="handleRecovery(row, $index)">
+          <el-button v-if="row.status == 'stop'" size="mini" type="success" @click="handleRecovery(row, $index)">
             继续
           </el-button>
           <el-button size="mini" type="danger" @click="handleDelete(row, $index)">
@@ -93,7 +93,7 @@ import { fetchList } from '@/api/task_list'
 import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 import TaskNew from "@/views/task/task_new"
-import { deleteTask, stopTask, updateTask } from '@/api/task'
+import { deleteTask, stopTask, continueTask } from '@/api/task'
 
 const calendarTypeOptions = [
   { key: 'CN', display_name: 'China' },
@@ -281,10 +281,13 @@ export default {
     },
 
     handleRecovery(row, index) {
-      var newRow = Object.assign({}, row)
-      newRow.task.action = "update"
-      updateTask(newRow.task).then(() => {
-        this.list.splice(index, 1, newRow)
+      continueTask({
+        executer: {
+          taskName: row.task_name,
+        }
+      }).then(() => {
+        row.status = "running"
+        this.list.splice(index, 1, row)
 
         this.getList()
 
@@ -297,10 +300,13 @@ export default {
       })
     },
     handleStop(row, index) {
-      var newRow = Object.assign({}, row)
-      newRow.task.action = "stop"
-      stopTask(newRow.task).then(() => {
-        this.list.splice(index, 1, newRow)
+      row.status = "stop"
+      stopTask({
+        executer: {
+          taskName: row.task_name,
+        }
+      }).then(() => {
+        this.list.splice(index, 1, row)
         this.getList()
         this.$notify({
           username: 'Success',
@@ -312,17 +318,10 @@ export default {
     },
 
     handleDelete(row, index) {
-
       deleteTask({
-        apiVersion: "v0.0.1",
-        kind: "oneRuntime",
-        trigger: {
-          cron: '* * * * * *',
-        },
         executer: {
           taskName: row.task_name,
         }
-
       }).then(() => {
         this.list.splice(index, 1)
         this.dialogFormVisible = false
