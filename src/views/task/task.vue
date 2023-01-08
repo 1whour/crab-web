@@ -31,39 +31,37 @@
 
     <el-table :key="tableKey" v-loading="listLoading" :data="list" border fit highlight-current-row style="width: 100%;"
       @sort-change="sortChange">
+      <el-table-column label="任务名" width="150px" align="center">
+        <template slot-scope="{row}">
+          <span>{{ row.task_name }} </span>
+        </template>
+      </el-table-column>
+      <el-table-column label="触发类型" width="80px" align="center">
+        <template slot-scope="{row}">
+          <span>{{ row.trigger }} </span>
+        </template>
+      </el-table-column>
+      <el-table-column label="触发条件" width="110px" align="center">
+        <template slot-scope="{row}">
+          <span>{{ row.trigger_value }} </span>
+        </template>
+      </el-table-column>
+      <el-table-column label="状态" width="80px" align="center">
+        <template slot-scope="{row}">
+          <span>{{ row.status }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="创建时间" prop="create_time" width="200px" align="center">
+      </el-table-column>
+      <el-table-column label="更新时间" prop="update_time" width="200px" align="center">
+      </el-table-column>
+
       <el-table-column label="runtime ID" prop="runtime_id" sortable="custom" align="center" width="140"
         :class-name="getSortClass('id')">
         <template slot-scope="{row}">
           <span>{{ row.runtime_id }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="任务名" width="150px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.task_name }} </span>
-        </template>
-      </el-table-column>
-      <el-table-column label="任务类型" width="70px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.action }} </span>
-        </template>
-      </el-table-column>
-      <el-table-column label="状态" width="80px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.state }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="在runtime" width="120px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.in_runtime }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="runtime ip" prop="ip" width="150px" align="center">
-      </el-table-column>
-      <el-table-column label="创建时间" prop="create_time" width="180px" align="center">
-      </el-table-column>
-      <el-table-column label="更新时间" prop="update_time" width="180px" align="center">
-      </el-table-column>
-
       <el-table-column label="操作" align="center" width="" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
           <el-button type="primary" size="mini" @click="modifyDialog(row.task)">
@@ -140,8 +138,8 @@ export default {
       listQuery: {
         format: "json",
         page: 1,
-        limit: 20,
-        importance: undefined,
+        limit: 10,
+        start_key: '',
         username: undefined,
         type: undefined,
         sort: '+id',
@@ -189,6 +187,7 @@ export default {
       this.listQuery.end_time = this.searchTimeRange[1]
       fetchList(this.listQuery).then(response => {
         this.list = response.data.items
+        this.listQuery.start_key = response.data.start_key
         this.total = response.data.total
 
         this.listLoading = false
